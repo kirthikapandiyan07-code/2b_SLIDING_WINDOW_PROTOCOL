@@ -1,5 +1,6 @@
 # 2b IMPLEMENTATION OF SLIDING WINDOW PROTOCOL
 ## AIM
+To implement of sliding window protocol.
 ## ALGORITHM:
 1. Start the program.
 2. Get the frame size from the user
@@ -8,6 +9,76 @@
 5. If your frames reach the server it will send ACK signal to client
 6. Stop the Program
 ## PROGRAM
+CLIENT:
+```
+import socket
+
+skt = socket.socket()
+skt.bind(('localhost', 1234))
+skt.listen(5)
+print("Waiting for server connection...")
+c, addr = skt.accept()
+
+while True:
+    try:
+        size = int(input("Enter number of frames to send: "))
+        if size > 0:
+            break
+        print("Enter a positive number.")
+    except ValueError:
+        print("Invalid input! Enter numbers only.")
+
+frames = list(range(size))
+
+while True:
+    try:
+        window = int(input("Enter Window Size: "))
+        if 0 < window <= size:
+            break
+        print("Enter a valid window size.")
+    except ValueError:
+        print("Invalid input! Enter numbers only.")
+
+start = 0
+
+while start < len(frames):
+    end = min(start + window, len(frames))
+    c.send(str(frames[start:end]).encode())
+    ack = c.recv(1024).decode()
+    if ack:
+        print(ack)
+    start = end
+
+c.close()
+skt.close()
+
+```
+SERVER:
+```
+import socket
+
+s = socket.socket()
+s.connect(('localhost', 1234))
+
+while True:
+    data = s.recv(1024).decode()
+
+    if not data:
+        break
+
+    print("Received frames:", data)
+    s.send("Acknowledgement received from the server".encode())
+
+s.close()
+```
 ## OUPUT
+CLIENT:
+
+<img width="750" height="177" alt="image" src="https://github.com/user-attachments/assets/056cb030-0283-4393-93c8-2b9c70c25720" />
+
+SERVER:
+
+<img width="801" height="210" alt="image" src="https://github.com/user-attachments/assets/0ac812d8-88e0-4f33-9e3d-46b372efcf6e" />
+
 ## RESULT
 Thus, python program to perform stop and wait protocol was successfully executed
